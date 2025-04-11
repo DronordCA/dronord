@@ -2,8 +2,8 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Mon Espace Client - Dronord</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
@@ -60,14 +60,6 @@
     .documents h2 {
       margin-top: 0;
     }
-    .documents ul {
-      list-style: none;
-      padding-left: 0;
-    }
-    .documents li {
-      padding: 0.5rem 0;
-      border-bottom: 1px solid #eee;
-    }
     .documents a.button {
       display: inline-block;
       margin-top: 1rem;
@@ -77,6 +69,16 @@
       border-radius: 6px;
       text-decoration: none;
       font-weight: 500;
+    }
+    #adminLink {
+      display: none;
+      margin-top: 2rem;
+      text-align: center;
+    }
+    #adminLink a {
+      text-decoration: none;
+      font-weight: bold;
+      color: #007aff;
     }
   </style>
 </head>
@@ -94,7 +96,11 @@
     <div class="documents">
       <h2>Vos documents</h2>
       <p>Vous pouvez accéder à vos fichiers via le lien ci-dessous :</p>
-      <a href="https://drive.google.com/drive/folders/1gYAVWPbTLTZ1ccGDWytoGzROrUZcRIEK?usp=sharing" target="_blank" class="button">📁 Accéder à mes documents</a>
+      <a id="driveLink" href="#" target="_blank" class="button" style="display:none;">📁 Accéder à mes documents</a>
+    </div>
+
+    <div id="adminLink">
+      <a href="admin_panel.html">🔧 Accès admin</a>
     </div>
   </main>
 
@@ -124,6 +130,14 @@
           const data = docSnap.data();
           const fullName = `${data.prenom ?? ''} ${data.nom ?? ''}`.trim();
           document.getElementById("welcome").textContent = `Bienvenue, ${fullName || user.email}`;
+          if (data.driveUrl) {
+            const link = document.getElementById("driveLink");
+            link.href = data.driveUrl;
+            link.style.display = "inline-block";
+          }
+          if (data.role === "admin") {
+            document.getElementById("adminLink").style.display = "block";
+          }
         } else {
           document.getElementById("welcome").textContent = `Bienvenue, ${user.email}`;
         }
