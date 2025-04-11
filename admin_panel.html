@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin - Dronord</title>
+  <title>Panneau Admin - Dronord</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body {
@@ -54,20 +54,18 @@
 </head>
 <body>
   <h1>Panneau Admin - Associer un lien Drive</h1>
-  <div class="form-section">
+  <div class="form-section" id="adminPanel" style="display:none">
     <label for="uid">UID de l'utilisateur</label>
     <input type="text" id="uid" placeholder="ex: ABC123XYZ456">
-
     <label for="driveUrl">Lien Google Drive</label>
     <input type="url" id="driveUrl" placeholder="https://drive.google.com/...">
-
     <button onclick="updateDriveLink()">Enregistrer</button>
     <div class="success" id="success"></div>
   </div>
-
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-    import { getFirestore, doc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBMBnaJeTAhBPBHVOaI3PdMIau0zcpM3V8",
@@ -79,13 +77,31 @@
     };
 
     const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
     const db = getFirestore(app);
 
-    async function updateDriveLink() {
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const docRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          if (data.role === "admin") {
+            document.getElementById("adminPanel").style.display = "block";
+          } else {
+            alert("Accès refusé : vous n'êtes pas administrateur.");
+            window.location.href = "dashboard.html";
+          }
+        }
+      } else {
+        window.location.href = "connexion.html";
+      }
+    });
+
+    window.updateDriveLink = async function () {
       const uid = document.getElementById('uid').value.trim();
       const driveUrl = document.getElementById('driveUrl').value.trim();
       if (!uid || !driveUrl) return alert("Merci de remplir tous les champs.");
-
       try {
         await updateDoc(doc(db, "users", uid), {
           driveUrl: driveUrl
