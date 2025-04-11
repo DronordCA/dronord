@@ -2,20 +2,13 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Panneau Admin - Dronord</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      margin: 0;
-      background-color: #f8f9fa;
-      padding: 2rem;
-    }
-    h1 {
-      text-align: center;
-    }
+    body { font-family: 'Inter', sans-serif; margin: 0; background-color: #f8f9fa; padding: 2rem; }
+    h1 { text-align: center; }
     .form-section {
       max-width: 600px;
       margin: auto;
@@ -24,11 +17,7 @@
       border-radius: 12px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.1);
     }
-    label {
-      display: block;
-      margin-top: 1rem;
-      font-weight: 600;
-    }
+    label { display: block; margin-top: 1rem; font-weight: 600; }
     input {
       width: 100%;
       padding: 0.75rem;
@@ -46,10 +35,7 @@
       font-size: 1rem;
       cursor: pointer;
     }
-    .success {
-      margin-top: 1rem;
-      color: green;
-    }
+    .success { margin-top: 1rem; color: green; }
   </style>
 </head>
 <body>
@@ -62,10 +48,11 @@
     <button onclick="updateDriveLink()">Enregistrer</button>
     <div class="success" id="success"></div>
   </div>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBMBnaJeTAhBPBHVOaI3PdMIau0zcpM3V8",
@@ -99,18 +86,16 @@
     });
 
     window.updateDriveLink = async function () {
-      const uid = document.getElementById('uid').value.trim();
-      const driveUrl = document.getElementById('driveUrl').value.trim();
+      const uid = document.getElementById("uid").value.trim();
+      const driveUrl = document.getElementById("driveUrl").value.trim();
       if (!uid || !driveUrl) return alert("Merci de remplir tous les champs.");
       try {
-        await updateDoc(doc(db, "users", uid), {
-          driveUrl: driveUrl
-        });
+        await setDoc(doc(db, "users", uid), { driveUrl }, { merge: true });
         document.getElementById("success").textContent = "✅ Lien Drive enregistré avec succès.";
       } catch (err) {
         alert("Erreur : " + err.message);
       }
-    }
+    };
   </script>
 </body>
 </html>
