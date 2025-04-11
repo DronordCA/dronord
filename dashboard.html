@@ -5,30 +5,62 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Mon Espace Client - Dronord</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    body { font-family: Arial, sans-serif; padding: 2rem; background: #f5f5f5; }
-    .section { margin-bottom: 2rem; background: #fff; padding: 1.5rem; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.05); }
-    h1, h2 { margin-top: 0; }
-    .admin-link { color: #007aff; font-weight: bold; display: none; }
+    body { font-family: 'Inter', sans-serif; margin: 0; background-color: #f5f5f5; color: #111; }
+    header {
+      background-color: #fff; padding: 1rem 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid #ddd;
+    }
+    .logo-container { display: flex; align-items: center; }
+    .logo-container img { height: 40px; margin-right: 0.75rem; }
+    .logo-container h1 { font-size: 1.5rem; margin: 0; }
+    .logout-btn {
+      background: #ff4d4f; color: white;
+      padding: 0.5rem 1rem; border: none;
+      border-radius: 6px; font-size: 0.9rem; cursor: pointer;
+    }
+    main { padding: 2rem; max-width: 900px; margin: auto; }
+    .welcome { font-size: 1.5rem; margin-bottom: 2rem; }
+    .documents {
+      background-color: white; padding: 1.5rem;
+      border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+    .documents h2 { margin-top: 0; }
+    .documents a.button {
+      display: inline-block; margin-top: 1rem;
+      padding: 0.75rem 1.5rem; background-color: #007aff;
+      color: white; border-radius: 6px; text-decoration: none; font-weight: 500;
+    }
+    #adminLink { display: none; margin-top: 2rem; text-align: center; }
+    #adminLink a { text-decoration: none; font-weight: bold; color: #007aff; }
   </style>
 </head>
 <body>
-  <h1>Bienvenue sur votre espace client</h1>
+  <header>
+    <div class="logo-container">
+      <img src="logo.png" alt="Logo">
+      <h1>Dronord</h1>
+    </div>
+    <button class="logout-btn" onclick="logout()">Se déconnecter</button>
+  </header>
 
-  <div class="section">
-    <h2>Status</h2>
-    <p style='margin-top:0;'><strong>Utilisateur connecté :</strong> <span id="userEmail">...</span></p>
-    <p><strong>Nom complet :</strong> <span id="userName">...</span></p>
-    <p><strong>Rôle :</strong> <span id="userRole">...</span></p>
-  </div>
-
-  <div class="section" id="adminSection">
-    <p id="adminAccess" class="admin-link"><a href="admin_panel.html">🔧 Accès admin</a></p>
-  </div>
+  <main>
+    <div class="welcome" id="welcome">Bienvenue !</div>
+    <div class="documents">
+      <h2>Vos documents</h2>
+      <p>Vous pouvez accéder à vos fichiers via le lien ci-dessous :</p>
+      <a id="driveLink" href="#" target="_blank" class="button" style="display:none;">📁 Accéder à mes documents</a>
+    </div>
+    <div id="adminLink">
+      <a href="admin_panel.html">🔧 Accès admin</a>
+    </div>
+  </main>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
     import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -44,31 +76,35 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    const emailEl = document.getElementById("userEmail");
-    const nameEl = document.getElementById("userName");
-    const roleEl = document.getElementById("userRole");
-    const adminLink = document.getElementById("adminAccess");
-
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        emailEl.textContent = user.email;
-        const ref = doc(db, "users", user.uid);
-        const snap = await getDoc(ref);
-        if (snap.exists()) {
-          const data = snap.data();
-          nameEl.textContent = `${data.prenom ?? ''} ${data.nom ?? ''}`;
-          roleEl.textContent = data.role || "(aucun)";
+        const docRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          const fullName = `${data.prenom ?? ''} ${data.nom ?? ''}`.trim();
+          document.getElementById("welcome").textContent = `Bienvenue, ${fullName || user.email}`;
+          if (data.driveUrl) {
+            const link = document.getElementById("driveLink");
+            link.href = data.driveUrl;
+            link.style.display = "inline-block";
+          }
           if (data.role === "admin") {
-            adminLink.style.display = "block";
+            document.getElementById("adminLink").style.display = "block";
           }
         } else {
-          roleEl.textContent = "Document utilisateur introuvable ❌";
+          document.getElementById("welcome").textContent = `Bienvenue, ${user.email}`;
         }
       } else {
-        roleEl.textContent = "Non connecté ❌";
         window.location.href = "connexion.html";
       }
     });
+
+    window.logout = function() {
+      signOut(auth).then(() => {
+        window.location.href = "connexion.html";
+      });
+    }
   </script>
 </body>
 </html>
