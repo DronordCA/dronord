@@ -60,6 +60,8 @@
 <body>
   <div class="signup-container">
     <h2>Créer un compte</h2>
+    <input type="text" placeholder="Prénom" id="prenom">
+    <input type="text" placeholder="Nom" id="nom">
     <input type="email" placeholder="Adresse email" id="email">
     <input type="password" placeholder="Mot de passe" id="password">
     <button onclick="signup()">S'inscrire</button>
@@ -71,6 +73,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBMBnaJeTAhBPBHVOaI3PdMIau0zcpM3V8",
@@ -83,14 +86,23 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const db = getFirestore(app);
 
     window.signup = async function () {
+      const prenom = document.getElementById('prenom').value;
+      const nom = document.getElementById('nom').value;
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
       try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
-        alert(`Bienvenue ${user.email}, votre compte a été créé !`);
+        await setDoc(doc(db, "users", user.uid), {
+          prenom: prenom,
+          nom: nom,
+          email: email
+        });
+        alert(`Bienvenue ${prenom} ${nom}, votre compte a été créé !`);
+        window.location.href = "dashboard.html";
       } catch (error) {
         alert("Erreur lors de l'inscription : " + error.message);
       }
