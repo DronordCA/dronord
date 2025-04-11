@@ -2,10 +2,10 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panneau Admin - Choix client</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Panneau Admin - Recherche client</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
   <style>
     :root {
       --primary-color: #1b263b;
@@ -28,14 +28,14 @@
       margin: 2rem auto;
       padding: 2rem;
       border-radius: 12px;
-      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 5px 20px rgba(0,0,0,0.05);
     }
     label {
       display: block;
       margin-top: 1rem;
       font-weight: bold;
     }
-    select, input {
+    input, datalist {
       width: 100%;
       padding: 0.75rem;
       margin-top: 0.25rem;
@@ -68,16 +68,14 @@
 <body>
   <h1>Panneau Admin - Associer un lien Drive</h1>
   <div class="form-section">
-    <label for="clientSelect">Sélectionnez un client</label>
-    <select id="clientSelect">
-      <option disabled selected>Chargement des clients...</option>
-    </select>
+    <label for="clientInput">Nom du client</label>
+    <input type="text" id="clientInput" list="clients" placeholder="Ex : Marie Dubois" autocomplete="off" />
+    <datalist id="clients"></datalist>
 
     <label for="driveUrl">Lien Google Drive</label>
     <input type="url" id="driveUrl" placeholder="https://drive.google.com/...">
 
     <button onclick="assignDriveLink()">Enregistrer</button>
-
     <div class="success" id="successMsg"></div>
     <div class="error" id="errorMsg"></div>
   </div>
@@ -97,40 +95,43 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const select = document.getElementById("clientSelect");
+    const datalist = document.getElementById("clients");
+    const clientInput = document.getElementById("clientInput");
 
-    // Charger tous les clients
+    let clientMap = {};
+
     async function loadClients() {
       const querySnapshot = await getDocs(collection(db, "users"));
-      select.innerHTML = '<option disabled selected>-- Sélectionnez un client --</option>';
+      datalist.innerHTML = '';
       querySnapshot.forEach(docSnap => {
         const data = docSnap.data();
         if (data.prenom && data.nom) {
-          const opt = document.createElement("option");
-          opt.value = docSnap.id;
-          opt.textContent = `${data.prenom} ${data.nom}`;
-          select.appendChild(opt);
+          const fullName = `${data.prenom} ${data.nom}`;
+          clientMap[fullName] = docSnap.id;
+          const option = document.createElement("option");
+          option.value = fullName;
+          datalist.appendChild(option);
         }
       });
     }
 
     loadClients();
 
-    // Associer le lien
     window.assignDriveLink = async function () {
-      const uid = select.value;
+      const selectedName = clientInput.value.trim();
       const driveUrl = document.getElementById("driveUrl").value.trim();
       const successMsg = document.getElementById("successMsg");
       const errorMsg = document.getElementById("errorMsg");
       successMsg.textContent = "";
       errorMsg.textContent = "";
 
-      if (!uid || !driveUrl) {
-        errorMsg.textContent = "Veuillez sélectionner un client et renseigner un lien.";
+      if (!selectedName || !driveUrl || !clientMap[selectedName]) {
+        errorMsg.textContent = "Veuillez sélectionner un nom valide et ajouter un lien.";
         return;
       }
 
       try {
+        const uid = clientMap[selectedName];
         await setDoc(doc(db, "users", uid), { driveUrl }, { merge: true });
         successMsg.textContent = "✅ Lien Drive enregistré avec succès.";
       } catch (err) {
