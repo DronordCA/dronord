@@ -1,0 +1,37 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Espace Client - Dronord</title>
+  <style>
+    body { font-family: Arial; text-align: center; margin-top: 50px; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <h2>Espace Client</h2>
+  <div id="login">
+    <p>Veuillez entrer le mot de passe pour accéder :</p>
+    <input type="password" id="password" placeholder="Mot de passe" />
+    <button onclick="checkPassword()">Valider</button>
+    <p id="error" style="color:red;"></p>
+  </div>
+  <div id="content" class="hidden">
+    <h3>Bienvenue dans l'espace client</h3>
+    <p>Ici, vous trouverez vos documents personnalisés.</p>
+  </div>
+  <script>
+    const PASSWORD = "dronord";
+    function checkPassword() {
+      const input = document.getElementById("password").value;
+      if (input === PASSWORD) {
+        document.getElementById("login").style.display = "none";
+        document.getElementById("content").style.display = "block";
+      } else {
+        document.getElementById("error").textContent = "Mot de passe incorrect.";
+      }
+    }
+  </script>
+</body>
+</html>
