@@ -148,16 +148,21 @@
 
     document.getElementById("registerForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-      const prenom = document.getElementById("prenom").value;
-      const nom = document.getElementById("nom").value;
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const prenom = document.getElementById("prenom").value.trim();
+      const nom = document.getElementById("nom").value.trim();
       const errorMsg = document.getElementById("errorMsg");
       errorMsg.textContent = "";
 
       try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        await setDoc(doc(db, "users", userCredential.user.uid), { prenom, nom, email, role: "client" });
+        await setDoc(doc(db, "users", userCredential.user.uid), {
+          prenom,
+          nom,
+          email,
+          role: "client"
+        });
         window.location.href = "dashboard.html";
       } catch (error) {
         errorMsg.textContent = "Erreur : " + error.message;
