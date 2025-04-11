@@ -1,11 +1,11 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Dashboard - Dronord</title>
+  <title>Tableau de bord - Dronord</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-  
   <style>
     :root {
       --primary-color: #1b263b;
@@ -65,15 +65,48 @@
       width: 100%;
     }
     main {
-      padding: 4rem 1rem;
+      padding: 3rem 1rem;
       max-width: 800px;
       margin: auto;
     }
+    h2 {
+      color: var(--primary-color);
+      text-align: center;
+    }
+    .welcome {
+      text-align: center;
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+    }
+    .documents, .admin-access {
+      text-align: center;
+      margin-top: 2rem;
+    }
+    a.button {
+      display: inline-block;
+      padding: 0.75rem 1.5rem;
+      background-color: var(--accent-color);
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: bold;
+      margin-top: 1rem;
+    }
+    .logout {
+      margin-top: 3rem;
+      text-align: center;
+    }
+    .logout button {
+      background-color: #ff4d4f;
+      color: white;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
   </style>
-
 </head>
 <body>
-  
   <header>
     <div class="logo-container">
       <img src="logo.png" alt="Logo Dronord">
@@ -81,16 +114,69 @@
     </div>
     <nav>
       <a href="index.html">Accueil</a>
-      <a href="a-propos.html">À propos</a>
-      <a href="prestations.html">Prestations</a>
-      <a href="galerie.html">Galerie</a>
-      <a href="contact.html">Contact</a>
-      <a href="connexion.html">Espace client</a>
+      <a href="connexion.html">Déconnexion</a>
     </nav>
   </header>
-
   <main>
-    <h2>Bienvenue dans votre espace client</h2><p>Accédez à vos fichiers et documents personnels.</p>
+    <h2>Bienvenue dans votre espace client</h2>
+    <div class="welcome" id="welcome">Chargement...</div>
+    <div class="documents">
+      <a id="driveLink" href="#" class="button" target="_blank" style="display: none;">📁 Accéder à mes documents</a>
+    </div>
+    <div class="admin-access" id="adminAccess" style="display: none;">
+      <a href="admin_panel.html" class="button">🔧 Accès admin</a>
+    </div>
+    <div class="logout">
+      <button onclick="logout()">Se déconnecter</button>
+    </div>
   </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBMBnaJeTAhBPBHVOaI3PdMIau0zcpM3V8",
+      authDomain: "dronord-8b43b.firebaseapp.com",
+      projectId: "dronord-8b43b",
+      storageBucket: "dronord-8b43b.firebasestorage.app",
+      messagingSenderId: "601196455068",
+      appId: "1:601196455068:web:297fc1d8ea563ebf903959"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const docRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          document.getElementById("welcome").textContent = `Bonjour ${data.prenom ?? ''} ${data.nom ?? ''}`;
+          if (data.driveUrl) {
+            const link = document.getElementById("driveLink");
+            link.href = data.driveUrl;
+            link.style.display = "inline-block";
+          }
+          if (data.role === "admin") {
+            document.getElementById("adminAccess").style.display = "block";
+          }
+        } else {
+          document.getElementById("welcome").textContent = "Bienvenue !";
+        }
+      } else {
+        window.location.href = "connexion.html";
+      }
+    });
+
+    window.logout = function() {
+      signOut(auth).then(() => {
+        window.location.href = "connexion.html";
+      });
+    };
+  </script>
 </body>
 </html>
