@@ -5,11 +5,122 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dronord</title>
-  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background-color: #fefefe;
+      color: #111;
+    }
+    header {
+      background-color: #ffffff;
+      border-bottom: 1px solid #ddd;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    .logo-container {
+      display: flex;
+      align-items: center;
+    }
+    .logo-container img {
+      height: 40px;
+      margin-right: 0.75rem;
+    }
+    .logo-container h1 {
+      font-size: 1.5rem;
+      margin: 0;
+      font-weight: 600;
+    }
+    nav a {
+      color: #111;
+      text-decoration: none;
+      margin-left: 1rem;
+      font-weight: 500;
+      transition: color 0.2s ease;
+    }
+    nav a:hover {
+      color: #007aff;
+    }
+    .hero {
+      position: relative;
+      text-align: center;
+      color: white;
+    }
+    .hero img {
+      width: 100%;
+      height: 80vh;
+      object-fit: cover;
+    }
+    .hero-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.5);
+      padding: 2rem 3rem;
+      border-radius: 10px;
+    }
+    .hero-text h2 {
+      font-size: 2.5rem;
+      margin: 0;
+    }
+    section {
+      padding: 4rem 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    section h2 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+    .gallery {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .gallery img {
+      width: 100%;
+      max-width: 300px;
+      border-radius: 8px;
+    }
+    form input, form textarea {
+      width: 100%;
+      padding: 0.75rem;
+      margin: 0.5rem 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+    form button {
+      padding: 0.75rem 2rem;
+      background: #007aff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    footer {
+      background: #f2f2f2;
+      color: #444;
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.9rem;
+    }
+  </style>
 </head>
 <body>
   <header>
-    <h1>Dronord</h1>
+    <div class="logo-container">
+      <img src="logo.png" alt="Logo Dronord">
+      <h1>Dronord</h1>
+    </div>
     <nav>
       <a href="#accueil">Accueil</a>
       <a href="#apropos">À propos</a>
@@ -19,6 +130,13 @@
       <a href="espace-client.html">Espace Client</a>
     </nav>
   </header>
+
+  <div class="hero">
+    <img src="https://via.placeholder.com/1600x800" alt="Drone en vol">
+    <div class="hero-text">
+      <h2>Capturez le monde sous un autre angle</h2>
+    </div>
+  </div>
 
   <section id="accueil">
     <h2>Bienvenue chez Dronord</h2>
@@ -54,9 +172,9 @@
   <section id="contact">
     <h2>Contact</h2>
     <form action="https://formspree.io/f/mayvlrwl" method="POST">
-      <label>Nom : <input type="text" name="name" required /></label><br />
-      <label>Email : <input type="email" name="email" required /></label><br />
-      <label>Message : <textarea name="message" required></textarea></label><br />
+      <input type="text" name="name" placeholder="Nom" required />
+      <input type="email" name="email" placeholder="Email" required />
+      <textarea name="message" placeholder="Votre message" required></textarea>
       <button type="submit">Envoyer</button>
     </form>
   </section>
