@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -5,7 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Connexion - Dronord</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-  
   <style>
     :root {
       --primary-color: #1b263b;
@@ -66,14 +66,42 @@
     }
     main {
       padding: 4rem 1rem;
-      max-width: 800px;
+      max-width: 400px;
       margin: auto;
     }
+    h2 {
+      text-align: center;
+      color: var(--primary-color);
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    input {
+      padding: 0.75rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+    button {
+      padding: 0.75rem;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    .error {
+      color: red;
+      text-align: center;
+      margin-top: 1rem;
+    }
   </style>
-
 </head>
 <body>
-  
   <header>
     <div class="logo-container">
       <img src="logo.png" alt="Logo Dronord">
@@ -88,9 +116,46 @@
       <a href="connexion.html">Espace client</a>
     </nav>
   </header>
-
   <main>
-    <h2>Connexion</h2><p>Veuillez vous connecter à votre espace client.</p>
+    <h2>Connexion à l'espace client</h2>
+    <form id="loginForm">
+      <input type="email" id="email" placeholder="Adresse e-mail" required />
+      <input type="password" id="password" placeholder="Mot de passe" required />
+      <button type="submit">Se connecter</button>
+    </form>
+    <div class="error" id="errorMsg"></div>
   </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBMBnaJeTAhBPBHVOaI3PdMIau0zcpM3V8",
+      authDomain: "dronord-8b43b.firebaseapp.com",
+      projectId: "dronord-8b43b",
+      storageBucket: "dronord-8b43b.firebasestorage.app",
+      messagingSenderId: "601196455068",
+      appId: "1:601196455068:web:297fc1d8ea563ebf903959"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const errorMsg = document.getElementById("errorMsg");
+      errorMsg.textContent = "";
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        window.location.href = "dashboard.html";
+      } catch (error) {
+        errorMsg.textContent = "Erreur : " + error.message;
+      }
+    });
+  </script>
 </body>
 </html>
