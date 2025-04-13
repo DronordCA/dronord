@@ -124,7 +124,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-    import { getAuth, setPersistence, browserSessionPersistence, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+    import { getAuth, setPersistence, browserLocalPersistence, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBMBnaJeTAhBPBHVOaI3PdMIau0zcpM3V8",
@@ -141,7 +141,7 @@
     const form = document.getElementById("loginForm");
     const errorMsg = document.getElementById("errorMsg");
 
-    setPersistence(auth, browserSessionPersistence).then(() => {
+    setPersistence(auth, browserLocalPersistence).then(() => {
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
         const email = document.getElementById("email").value.trim();
