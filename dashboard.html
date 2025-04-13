@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Tableau de bord - Dronord</title>
+  <title>Espace client - Dronord</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -20,115 +20,50 @@
     header {
       background: var(--primary-color);
       padding: 1rem 2rem;
+      color: white;
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid #ddd;
-      flex-wrap: wrap;
-    }
-    .logo-container {
-      display: flex;
       align-items: center;
     }
-    .logo-container img {
-      height: 40px;
-      margin-right: 0.75rem;
-    }
-    .logo-container h1 {
+    h1 {
       font-size: 1.5rem;
-      margin: 0;
-      color: white;
-    }
-    nav {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-    nav a {
-      text-decoration: none;
-      color: white;
-      font-weight: 500;
-      position: relative;
-      padding-bottom: 4px;
-    }
-    nav a::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 0;
-      height: 2px;
-      background-color: var(--accent-color);
-      transition: width 0.3s ease;
-    }
-    nav a:hover::after {
-      width: 100%;
     }
     main {
-      padding: 3rem 1rem;
+      padding: 2rem;
       max-width: 800px;
       margin: auto;
     }
     h2 {
       color: var(--primary-color);
-      text-align: center;
     }
-    .welcome {
-      text-align: center;
-      font-size: 1.2rem;
-      margin-bottom: 2rem;
+    .doc-list {
+      margin-top: 1.5rem;
     }
-    .documents, .admin-access {
-      text-align: center;
-      margin-top: 2rem;
+    .doc-item {
+      background: white;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
-    a.button {
-      display: inline-block;
-      padding: 0.75rem 1.5rem;
-      background-color: var(--accent-color);
-      color: white;
+    .doc-item a {
       text-decoration: none;
-      border-radius: 6px;
-      font-weight: bold;
-      margin-top: 1rem;
-    }
-    .logout {
-      margin-top: 3rem;
-      text-align: center;
-    }
-    .logout button {
-      background-color: #ff4d4f;
-      color: white;
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
+      color: var(--accent-color);
+      font-weight: 500;
     }
   </style>
 </head>
 <body>
   <header>
-    <div class="logo-container">
-      <img src="logo.png" alt="Logo Dronord">
-      <h1>Dronord</h1>
-    </div>
-    <nav>
-      <a href="index.html">Accueil</a>
-      <a href="connexion.html">Déconnexion</a>
-    </nav>
+    <h1>Bienvenue dans votre espace client</h1>
+    <button onclick="logout()">Se déconnecter</button>
   </header>
   <main>
-    <h2>Bienvenue dans votre espace client</h2>
-    <div class="welcome" id="welcome">Chargement...</div>
-    <div class="documents">
-      <a id="driveLink" href="#" class="button" target="_blank" style="display: none;">📁 Accéder à mes documents</a>
-    </div>
-    <div class="admin-access" id="adminAccess" style="display: none;">
-      <a href="admin_panel.html" class="button">🔧 Accès admin</a>
-    </div>
-    <div class="logout">
-      <button onclick="logout()">Se déconnecter</button>
-    </div>
+    <h2>Vos documents partagés</h2>
+    <div class="doc-list" id="docList">Chargement des documents...</div>
   </main>
 
   <script type="module">
@@ -140,7 +75,7 @@
       apiKey: "AIzaSyBMBnaJeTAhBPBHVOaI3PdMIau0zcpM3V8",
       authDomain: "dronord-8b43b.firebaseapp.com",
       projectId: "dronord-8b43b",
-      storageBucket: "dronord-8b43b.firebasestorage.app",
+      storageBucket: "dronord-8b43b.appspot.com",
       messagingSenderId: "601196455068",
       appId: "1:601196455068:web:297fc1d8ea563ebf903959"
     };
@@ -149,34 +84,33 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        const docRef = doc(db, "users", user.uid);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          document.getElementById("welcome").textContent = `Bonjour ${data.prenom ?? ''} ${data.nom ?? ''}`;
-          if (data.driveUrl) {
-            const link = document.getElementById("driveLink");
-            link.href = data.driveUrl;
-            link.style.display = "inline-block";
-          }
-          if (data.role === "admin") {
-            document.getElementById("adminAccess").style.display = "block";
-          }
-        } else {
-          document.getElementById("welcome").textContent = "Bienvenue !";
-        }
-      } else {
+    const docList = document.getElementById("docList");
+
+    onAuthStateChanged(auth, async user => {
+      if (!user) {
         window.location.href = "connexion.html";
+        return;
       }
+
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      const data = userDoc.data();
+      const documents = data.documents || [];
+
+      if (documents.length === 0) {
+        docList.innerHTML = "<p>Aucun document pour le moment.</p>";
+        return;
+      }
+
+      docList.innerHTML = "";
+      documents.forEach(doc => {
+        const div = document.createElement("div");
+        div.className = "doc-item";
+        div.innerHTML = `<span>${doc.name}</span> <a href="${doc.url}" target="_blank">Voir</a>`;
+        docList.appendChild(div);
+      });
     });
 
-    window.logout = function() {
-      signOut(auth).then(() => {
-        window.location.href = "connexion.html";
-      });
-    };
+    window.logout = () => signOut(auth).then(() => window.location.href = "connexion.html");
   </script>
 </body>
 </html>

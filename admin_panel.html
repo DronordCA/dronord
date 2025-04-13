@@ -2,9 +2,9 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Panneau Admin - Recherche client</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panneau Admin - Lier des documents</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
   <style>
     :root {
@@ -18,7 +18,7 @@
       padding: 2rem;
       color: #111;
     }
-    h1 {
+    h1, h2 {
       text-align: center;
       color: var(--primary-color);
     }
@@ -35,7 +35,7 @@
       margin-top: 1rem;
       font-weight: bold;
     }
-    input, datalist {
+    input, select {
       width: 100%;
       padding: 0.75rem;
       margin-top: 0.25rem;
@@ -57,87 +57,88 @@
       text-align: center;
       margin-top: 1rem;
     }
-    .success {
-      color: green;
-    }
-    .error {
-      color: red;
-    }
+    .success { color: green; }
+    .error { color: red; }
   </style>
 </head>
 <body>
-  <h1>Panneau Admin - Associer un lien Drive</h1>
+  <h1>Panneau Admin</h1>
   <div class="form-section">
-    <label for="clientInput">Nom du client</label>
-    <input type="text" id="clientInput" list="clients" placeholder="Ex : Marie Dubois" autocomplete="off" />
-    <datalist id="clients"></datalist>
+    <h2>Lier un document Google Drive</h2>
+    <label for="clientSelect">Sélectionnez un client</label>
+    <select id="clientSelect">
+      <option disabled selected>Chargement des clients...</option>
+    </select>
 
-    <label for="driveUrl">Lien Google Drive</label>
-    <input type="url" id="driveUrl" placeholder="https://drive.google.com/...">
+    <label for="docName">Nom du document</label>
+    <input type="text" id="docName" placeholder="Ex : Facture avril 2025" />
 
-    <button onclick="assignDriveLink()">Enregistrer</button>
+    <label for="docUrl">Lien Google Drive</label>
+    <input type="url" id="docUrl" placeholder="https://drive.google.com/..." />
+
+    <button onclick="addDriveLink()">Ajouter ce document</button>
     <div class="success" id="successMsg"></div>
     <div class="error" id="errorMsg"></div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, doc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBMBnaJeTAhBPBHVOaI3PdMIau0zcpM3V8",
       authDomain: "dronord-8b43b.firebaseapp.com",
       projectId: "dronord-8b43b",
-      storageBucket: "dronord-8b43b.firebasestorage.app",
+      storageBucket: "dronord-8b43b.appspot.com",
       messagingSenderId: "601196455068",
       appId: "1:601196455068:web:297fc1d8ea563ebf903959"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const datalist = document.getElementById("clients");
-    const clientInput = document.getElementById("clientInput");
 
-    let clientMap = {};
+    const clientSelect = document.getElementById("clientSelect");
+    const successMsg = document.getElementById("successMsg");
+    const errorMsg = document.getElementById("errorMsg");
 
     async function loadClients() {
       const querySnapshot = await getDocs(collection(db, "users"));
-      datalist.innerHTML = '';
+      clientSelect.innerHTML = '<option disabled selected>-- Sélectionnez un client --</option>';
       querySnapshot.forEach(docSnap => {
         const data = docSnap.data();
-        if (data.prenom && data.nom) {
-          const fullName = `${data.prenom} ${data.nom}`;
-          clientMap[fullName] = docSnap.id;
-          const option = document.createElement("option");
-          option.value = fullName;
-          datalist.appendChild(option);
+        const fullName = `${data.prenom ?? ''} ${data.nom ?? ''}`.trim();
+        if (fullName) {
+          const opt = document.createElement("option");
+          opt.value = docSnap.id;
+          opt.textContent = fullName;
+          clientSelect.appendChild(opt);
         }
       });
     }
 
     loadClients();
 
-    window.assignDriveLink = async function () {
-      const selectedName = clientInput.value.trim();
-      const driveUrl = document.getElementById("driveUrl").value.trim();
-      const successMsg = document.getElementById("successMsg");
-      const errorMsg = document.getElementById("errorMsg");
+    window.addDriveLink = async function () {
+      const uid = clientSelect.value;
+      const name = document.getElementById("docName").value.trim();
+      const url = document.getElementById("docUrl").value.trim();
       successMsg.textContent = "";
       errorMsg.textContent = "";
 
-      if (!selectedName || !driveUrl || !clientMap[selectedName]) {
-        errorMsg.textContent = "Veuillez sélectionner un nom valide et ajouter un lien.";
+      if (!uid || !name || !url) {
+        errorMsg.textContent = "Merci de remplir tous les champs.";
         return;
       }
 
       try {
-        const uid = clientMap[selectedName];
-        await setDoc(doc(db, "users", uid), { driveUrl }, { merge: true });
-        successMsg.textContent = "✅ Lien Drive enregistré avec succès.";
+        await updateDoc(doc(db, "users", uid), {
+          documents: arrayUnion({ name, url })
+        });
+        successMsg.textContent = "✅ Document ajouté avec succès.";
       } catch (err) {
         errorMsg.textContent = "Erreur : " + err.message;
       }
-    }
+    };
   </script>
 </body>
 </html>
