@@ -23,7 +23,6 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid #ddd;
       flex-wrap: wrap;
     }
     .logo-container {
@@ -31,7 +30,7 @@
       align-items: center;
     }
     .logo-container img {
-      height: 40px;
+      height: 60px;
       margin-right: 0.75rem;
     }
     .logo-container h1 {
@@ -48,21 +47,6 @@
       text-decoration: none;
       color: white;
       font-weight: 500;
-      position: relative;
-      padding-bottom: 4px;
-    }
-    nav a::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 0;
-      height: 2px;
-      background-color: var(--accent-color);
-      transition: width 0.3s ease;
-    }
-    nav a:hover::after {
-      width: 100%;
     }
     main {
       padding: 4rem 1rem;
@@ -94,10 +78,14 @@
       font-size: 1rem;
       cursor: pointer;
     }
-    .error {
-      color: red;
+    .info-inscription {
       text-align: center;
       margin-top: 1rem;
+      font-size: 0.95rem;
+    }
+    .info-inscription a {
+      color: var(--accent-color);
+      text-decoration: underline;
     }
   </style>
 </head>
@@ -123,39 +111,9 @@
       <input type="password" id="password" placeholder="Mot de passe" required />
       <button type="submit">Se connecter</button>
     </form>
-    <div class="error" id="errorMsg"></div>
+    <div class="info-inscription">
+      Pas encore de compte ? <a href="inscription.html">Inscrivez-vous ici</a>
+    </div>
   </main>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyBMBnaJeTAhBPBHVOaI3PdMIau0zcpM3V8",
-      authDomain: "dronord-8b43b.firebaseapp.com",
-      projectId: "dronord-8b43b",
-      storageBucket: "dronord-8b43b.firebasestorage.app",
-      messagingSenderId: "601196455068",
-      appId: "1:601196455068:web:297fc1d8ea563ebf903959"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-
-    document.getElementById("loginForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-      const errorMsg = document.getElementById("errorMsg");
-      errorMsg.textContent = "";
-
-      try {
-        await signInWithEmailAndPassword(auth, email, password);
-        window.location.href = "dashboard.html";
-      } catch (error) {
-        errorMsg.textContent = "Erreur : " + error.message;
-      }
-    });
-  </script>
 </body>
 </html>
