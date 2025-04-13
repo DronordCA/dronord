@@ -92,22 +92,31 @@
         return;
       }
 
-      const userDoc = await getDoc(doc(db, "users", user.uid));
-      const data = userDoc.data();
-      const documents = data.documents || [];
+      try {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (!userDoc.exists()) {
+          docList.innerHTML = "<p>Aucun document trouvé (profil introuvable).</p>";
+          return;
+        }
 
-      if (documents.length === 0) {
-        docList.innerHTML = "<p>Aucun document pour le moment.</p>";
-        return;
+        const data = userDoc.data();
+        const documents = Array.isArray(data.documents) ? data.documents : [];
+
+        if (documents.length === 0) {
+          docList.innerHTML = "<p>Aucun document disponible pour le moment.</p>";
+          return;
+        }
+
+        docList.innerHTML = "";
+        documents.forEach(doc => {
+          const div = document.createElement("div");
+          div.className = "doc-item";
+          div.innerHTML = `<span>${doc.name}</span> <a href="${doc.url}" target="_blank">Voir</a>`;
+          docList.appendChild(div);
+        });
+      } catch (err) {
+        docList.innerHTML = `<p style="color: red;">Erreur lors du chargement : ${err.message}</p>`;
       }
-
-      docList.innerHTML = "";
-      documents.forEach(doc => {
-        const div = document.createElement("div");
-        div.className = "doc-item";
-        div.innerHTML = `<span>${doc.name}</span> <a href="${doc.url}" target="_blank">Voir</a>`;
-        docList.appendChild(div);
-      });
     });
 
     window.logout = () => signOut(auth).then(() => window.location.href = "connexion.html");
