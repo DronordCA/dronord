@@ -87,6 +87,11 @@
       color: var(--accent-color);
       text-decoration: underline;
     }
+    .error {
+      color: red;
+      text-align: center;
+      margin-top: 1rem;
+    }
   </style>
 </head>
 <body>
@@ -114,6 +119,41 @@
     <div class="info-inscription">
       Pas encore de compte ? <a href="inscription.html">Inscrivez-vous ici</a>
     </div>
+    <div class="error" id="errorMsg"></div>
   </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBMBnaJeTAhBPBHVOaI3PdMIau0zcpM3V8",
+      authDomain: "dronord-8b43b.firebaseapp.com",
+      projectId: "dronord-8b43b",
+      storageBucket: "dronord-8b43b.appspot.com",
+      messagingSenderId: "601196455068",
+      appId: "1:601196455068:web:297fc1d8ea563ebf903959"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    const form = document.getElementById("loginForm");
+    const errorMsg = document.getElementById("errorMsg");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+      errorMsg.textContent = "";
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        window.location.href = "dashboard.html";
+      } catch (error) {
+        errorMsg.textContent = "Erreur : " + error.message;
+      }
+    });
+  </script>
 </body>
 </html>
