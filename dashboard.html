@@ -26,8 +26,30 @@
       align-items: center;
       flex-wrap: wrap;
     }
-    h1 {
+    .logo-container {
+      display: flex;
+      align-items: center;
+    }
+    .logo-container img {
+      height: 60px;
+      margin-right: 0.75rem;
+    }
+    .logo-container h1 {
+      margin: 0;
       font-size: 1.5rem;
+    }
+    nav {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    nav a {
+      text-decoration: none;
+      color: white;
+      font-weight: 500;
+    }
+    nav a:hover {
+      text-decoration: underline;
     }
     #adminBtn {
       background: var(--accent-color);
@@ -38,9 +60,6 @@
       font-weight: 600;
       text-decoration: none;
       display: none;
-    }
-    #adminBtn:hover {
-      background-color: #005fce;
     }
     main {
       padding: 2rem;
@@ -68,12 +87,8 @@
       color: var(--accent-color);
       font-weight: 500;
     }
-    .top-right {
-      display: flex;
-      gap: 1rem;
-      align-items: center;
-    }
     .logout-btn {
+      margin-left: 1rem;
       background: transparent;
       border: 1px solid white;
       color: white;
@@ -85,11 +100,19 @@
 </head>
 <body>
   <header>
-    <h1>Espace client</h1>
-    <div class="top-right">
+    <div class="logo-container">
+      <img src="logo.png" alt="Logo Dronord">
+      <h1>Dronord</h1>
+    </div>
+    <nav>
+      <a href="index.html">Accueil</a>
+      <a href="a-propos.html">À propos</a>
+      <a href="prestations.html">Prestations</a>
+      <a href="galerie.html">Galerie</a>
+      <a href="contact.html">Contact</a>
       <a href="admin_panel.html" id="adminBtn">Panneau Admin</a>
       <button class="logout-btn" onclick="logout()">Se déconnecter</button>
-    </div>
+    </nav>
   </header>
   <main>
     <h2>Vos documents partagés</h2>
@@ -98,7 +121,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+    import { getAuth, setPersistence, browserSessionPersistence, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
     import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -117,42 +140,44 @@
     const docList = document.getElementById("docList");
     const adminBtn = document.getElementById("adminBtn");
 
-    onAuthStateChanged(auth, async user => {
-      if (!user) {
-        window.location.href = "connexion.html";
-        return;
-      }
-
-      try {
-        const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (!userDoc.exists()) {
-          docList.innerHTML = "<p>Aucun document trouvé (profil introuvable).</p>";
+    setPersistence(auth, browserSessionPersistence).then(() => {
+      onAuthStateChanged(auth, async user => {
+        if (!user) {
+          window.location.href = "connexion.html";
           return;
         }
 
-        const data = userDoc.data();
+        try {
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          if (!userDoc.exists()) {
+            docList.innerHTML = "<p>Aucun document trouvé (profil introuvable).</p>";
+            return;
+          }
 
-        if (data.role === "admin") {
-          adminBtn.style.display = "inline-block";
+          const data = userDoc.data();
+
+          if (data.role === "admin") {
+            adminBtn.style.display = "inline-block";
+          }
+
+          const documents = Array.isArray(data.documents) ? data.documents : [];
+
+          if (documents.length === 0) {
+            docList.innerHTML = "<p>Aucun document disponible pour le moment.</p>";
+            return;
+          }
+
+          docList.innerHTML = "";
+          documents.forEach(doc => {
+            const div = document.createElement("div");
+            div.className = "doc-item";
+            div.innerHTML = `<span>${doc.name}</span> <a href="${doc.url}" target="_blank">Voir</a>`;
+            docList.appendChild(div);
+          });
+        } catch (err) {
+          docList.innerHTML = `<p style="color: red;">Erreur : ${err.message}</p>`;
         }
-
-        const documents = Array.isArray(data.documents) ? data.documents : [];
-
-        if (documents.length === 0) {
-          docList.innerHTML = "<p>Aucun document disponible pour le moment.</p>";
-          return;
-        }
-
-        docList.innerHTML = "";
-        documents.forEach(doc => {
-          const div = document.createElement("div");
-          div.className = "doc-item";
-          div.innerHTML = `<span>${doc.name}</span> <a href="${doc.url}" target="_blank">Voir</a>`;
-          docList.appendChild(div);
-        });
-      } catch (err) {
-        docList.innerHTML = `<p style="color: red;">Erreur lors du chargement : ${err.message}</p>`;
-      }
+      });
     });
 
     window.logout = () => signOut(auth).then(() => window.location.href = "connexion.html");

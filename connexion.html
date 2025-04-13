@@ -124,7 +124,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+    import { getAuth, setPersistence, browserSessionPersistence, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBMBnaJeTAhBPBHVOaI3PdMIau0zcpM3V8",
@@ -141,18 +141,20 @@
     const form = document.getElementById("loginForm");
     const errorMsg = document.getElementById("errorMsg");
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value.trim();
-      errorMsg.textContent = "";
+    setPersistence(auth, browserSessionPersistence).then(() => {
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value.trim();
+        errorMsg.textContent = "";
 
-      try {
-        await signInWithEmailAndPassword(auth, email, password);
-        window.location.href = "dashboard.html";
-      } catch (error) {
-        errorMsg.textContent = "Erreur : " + error.message;
-      }
+        try {
+          await signInWithEmailAndPassword(auth, email, password);
+          window.location.href = "dashboard.html";
+        } catch (error) {
+          errorMsg.textContent = "Erreur : " + error.message;
+        }
+      });
     });
   </script>
 </body>
