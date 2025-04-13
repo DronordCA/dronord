@@ -24,9 +24,23 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
     }
     h1 {
       font-size: 1.5rem;
+    }
+    #adminBtn {
+      background: var(--accent-color);
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      color: white;
+      font-weight: 600;
+      text-decoration: none;
+      display: none;
+    }
+    #adminBtn:hover {
+      background-color: #005fce;
     }
     main {
       padding: 2rem;
@@ -54,12 +68,28 @@
       color: var(--accent-color);
       font-weight: 500;
     }
+    .top-right {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+    .logout-btn {
+      background: transparent;
+      border: 1px solid white;
+      color: white;
+      padding: 0.4rem 0.8rem;
+      border-radius: 5px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
   <header>
-    <h1>Bienvenue dans votre espace client</h1>
-    <button onclick="logout()">Se déconnecter</button>
+    <h1>Espace client</h1>
+    <div class="top-right">
+      <a href="admin_panel.html" id="adminBtn">Panneau Admin</a>
+      <button class="logout-btn" onclick="logout()">Se déconnecter</button>
+    </div>
   </header>
   <main>
     <h2>Vos documents partagés</h2>
@@ -85,6 +115,7 @@
     const db = getFirestore(app);
 
     const docList = document.getElementById("docList");
+    const adminBtn = document.getElementById("adminBtn");
 
     onAuthStateChanged(auth, async user => {
       if (!user) {
@@ -100,6 +131,11 @@
         }
 
         const data = userDoc.data();
+
+        if (data.role === "admin") {
+          adminBtn.style.display = "inline-block";
+        }
+
         const documents = Array.isArray(data.documents) ? data.documents : [];
 
         if (documents.length === 0) {
