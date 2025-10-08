@@ -1,122 +1,124 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Dronord - Accueil</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dronord</title>
   <style>
-    :root {
-      --primary-color: #1b263b;
-      --accent-color: #007aff;
+    /* Reset minimal */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
+
     body {
-      margin: 0;
-      font-family: 'Inter', sans-serif;
+      font-family: Arial, sans-serif;
+      background-color: #fff;
       color: #111;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      text-align: center;
     }
+
     header {
-      background: var(--primary-color);
-      padding: 1rem 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid #ddd;
-      flex-wrap: wrap;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background-color: white;
+      padding: 20px 0;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      z-index: 100;
     }
-    .logo-container {
-      display: flex;
-      align-items: center;
+
+    header img {
+      width: 200px;
+      height: auto;
+      display: block;
+      margin: 0 auto 10px;
+      transition: transform 0.5s, opacity 0.5s;
+      opacity: 0;
+      transform: translateY(-20px);
+      animation: fadeInDown 0.5s forwards;
     }
-    .logo-container img {
-      height: 60px;
-      margin-right: 0.75rem;
+
+    @keyframes fadeInDown {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
-    .logo-container h1 {
-      font-size: 1.5rem;
-      margin: 0;
-      color: white;
-    }
+
     nav {
       display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
+      justify-content: center;
+      gap: 30px;
     }
+
     nav a {
       text-decoration: none;
-      color: white;
+      color: #555;
       font-weight: 500;
-      position: relative;
-      padding-bottom: 4px;
+      transition: color 0.3s;
     }
-    nav a::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 0;
-      height: 2px;
-      background-color: var(--accent-color);
-      transition: width 0.3s ease;
+
+    nav a:hover {
+      color: #000;
     }
-    nav a:hover::after {
-      width: 100%;
-    }
+
     main {
-      padding: 5rem 1rem;
-      text-align: center;
-      background-image: url('https://images.unsplash.com/photo-1558981403-c5f9897b9b93?auto=format&fit=crop&w=1950&q=80'); /* à remplacer par ton image réelle */
-      background-size: cover;
-      background-position: center;
-      background-color: rgba(0, 0, 0, 0.5);
-      background-blend-mode: overlay;
-      color: white;
+      margin-top: 180px; /* pour laisser l’espace du header */
+      padding: 20px;
+      flex: 1;
     }
-    h2 {
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
+
+    main h1 {
+      font-size: 3rem;
+      margin-bottom: 20px;
     }
-    p {
+
+    main p {
       font-size: 1.2rem;
-      max-width: 700px;
-      margin: auto;
-      background-color: rgba(0, 0, 0, 0.4);
-      padding: 1rem;
-      border-radius: 10px;
+      max-width: 600px;
+      margin: 0 auto;
+      color: #666;
     }
-    @media (max-width: 600px) {
-      .logo-container {
-        justify-content: center;
-        flex: 1 0 100%;
-        margin-bottom: 1rem;
-      }
-      nav {
-        justify-content: center;
-        width: 100%;
-        text-align: center;
-        gap: 0.75rem;
-      }
+
+    footer {
+      padding: 20px;
+      font-size: 0.9rem;
+      color: #888;
     }
   </style>
 </head>
 <body>
+
+  <!-- Header -->
   <header>
-    <div class="logo-container">
-      <img src="logo.png" alt="Logo Dronord">
-      <h1>Dronord</h1>
-    </div>
+    <img src="assets/dronord_logo_transparent.png" alt="Logo Dronord">
     <nav>
-      <a href="index.html">Accueil</a>
-      <a href="a-propos.html">À propos</a>
-      <a href="prestations.html">Prestations</a>
-      <a href="galerie.html">Galerie</a>
-      <a href="contact.html">Contact</a>
-      <a href="connexion.html">Espace client</a>
+      <a href="#home">Accueil</a>
+      <a href="#about">À propos</a>
+      <a href="#services">Prestations</a>
+      <a href="#gallery">Galerie</a>
+      <a href="#contact">Contact</a>
     </nav>
   </header>
-  <main>
-    <h2>Bienvenue chez Dronord</h2>
-    <p>Spécialistes de l'imagerie aérienne et terrestre, nous vous proposons des prestations personnalisées alliant prises de vue par drone et par caméra au sol. Découvrez notre univers et accédez à votre espace client sécurisé.</p>
+
+  <!-- Hero Section -->
+  <main id="home">
+    <h1>Dronord — Capturons le Nord autrement</h1>
+    <p>
+      Spécialisé dans la photographie et la vidéographie aérienne, Dronord propose des images immersives et naturelles au cœur du Québec.
+    </p>
   </main>
+
+  <!-- Footer -->
+  <footer>
+    © 2025 Dronord — Tous droits réservés
+  </footer>
+
 </body>
 </html>
